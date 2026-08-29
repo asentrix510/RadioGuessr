@@ -1,6 +1,15 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.routes.games import router as games_router
+
+
+app = FastAPI(
+    title="RadioGuessr API",
+    version="1.0.0"
+)
+
+
+app.include_router(games_router)
 
 
 @app.get("/")

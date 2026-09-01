@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 
 from app.routes.games import router as games_router
+from app.routes.round import router as rounds_router
+from app.routes.users import router as users_router
 
 
 app = FastAPI(
@@ -8,9 +10,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
 app.include_router(games_router)
-
+app.include_router(rounds_router)
+app.include_router(users_router)
 
 @app.get("/")
 def root():

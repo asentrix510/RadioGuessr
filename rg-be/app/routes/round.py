@@ -1,19 +1,24 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.models.round import Round
 from app.schemas.round import RoundCreate, RoundResponse
+from app.schemas.guess import GuessCreate, GuessResponse
+from app.services.scoring import (
+    calculate_distance_km,
+    calculate_score
+)
 
 
 router = APIRouter(
-    prefix="/api/games",
+    prefix="/api",
     tags=["Rounds"]
 )
 
 
 @router.post(
-    "/{game_id}/rounds",
+    "/games/{game_id}/rounds",
     response_model=RoundResponse,
     status_code=status.HTTP_201_CREATED
 )
@@ -36,3 +41,67 @@ def create_round(
     db.refresh(new_round)
 
     return new_round
+
+
+@router.get(
+    "/games/{game_id}/rounds",
+    response_model=list[RoundResponse]
+)
+def get_rounds(
+    game_id: int,
+    db: Session = Depends(get_db)
+):
+    rounds = (
+        db.query(Round)
+        .filter(Round.game_id == game_id)
+        .all()
+    )
+
+    return rounds
+
+
+@router.post(
+    "/rounds/{round_id}/guess",
+    response_model=GuessResponse
+)
+def submit_guess(
+    round_id: int,
+    guess_data: GuessCreate,
+    db: Session = Depends(get_db)
+):
+    round = (
+        db.query(Round)
+        .filter(Round.id == round_id)
+        .first()
+    )
+
+    if round is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Round not found"
+        )
+
+    distance = calculate_distance_km(
+        round.latitude,
+        round.longitude,
+        guess_data.guess_latitude,
+        guess_data.guess_longitude
+    )
+    score = calculate_score(distance)
+
+    round.guess_latitude = guess_data.guess_latitude
+    round.guess_longitude = guess_data.guess_longitude
+    round.distance_km = distance
+    round.score = score
+    
+
+    db.commit()
+    db.refresh(round)
+
+    return {
+        "round_id": round.id,
+        "guess_latitude": round.guess_latitude,
+        "guess_longitude": round.guess_longitude,
+        "distance_km": round.distance_km,
+        "score": round.score
+    }

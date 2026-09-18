@@ -35,7 +35,19 @@ def get_usable_stations(country_code: str):
     ]
 
     return usable_stations
+def is_stream_available(stream_url: str) -> bool:
+    try:
+        with httpx.stream(
+            "GET",
+            stream_url,
+            timeout=5.0,
+            follow_redirects=True
+        ) as response:
 
+            return response.status_code == 200
+
+    except httpx.RequestError:
+        return False
 
 def get_random_station(country_code: str):
     stations = get_usable_stations(country_code)
@@ -45,16 +57,26 @@ def get_random_station(country_code: str):
             f"No usable stations found for country {country_code}"
         )
 
-    station = random.choice(stations)
+    random.shuffle(stations)
 
-    return {
-        "name": station.get("name"),
-        "country": station.get("country"),
-        "country_code": station.get("countrycode"),
-        "latitude": station.get("geo_lat"),
-        "longitude": station.get("geo_long"),
-        "stream_url": station.get("url_resolved"),
-        "codec": station.get("codec"),
-        "bitrate": station.get("bitrate"),
-        "hls": station.get("hls"),
-    }
+    max_attempts = min(5, len(stations))
+
+    for station in stations[:max_attempts]:
+        stream_url = station.get("url_resolved")
+
+        if is_stream_available(stream_url):
+            return {
+                "name": station.get("name"),
+                "country": station.get("country"),
+                "country_code": station.get("countrycode"),
+                "latitude": station.get("geo_lat"),
+                "longitude": station.get("geo_long"),
+                "stream_url": stream_url,
+                "codec": station.get("codec"),
+                "bitrate": station.get("bitrate"),
+                "hls": station.get("hls"),
+            }
+
+    raise ValueError(
+        f"No working streams found for country {country_code}"
+    )

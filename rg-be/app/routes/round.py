@@ -9,15 +9,13 @@ from app.services.scoring import (
     calculate_distance_km,
     calculate_score
 )
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 from app.database.dependencies import get_db
 from app.models.game import Game
 from app.models.round import Round
 from app.schemas.random_round import RandomRoundResponse
 from app.services.radio_browser import get_random_station
-
+from app.services.country_pool import get_random_country
 
 router = APIRouter(
     prefix="/api",
@@ -120,7 +118,6 @@ def submit_guess(
 )
 def create_random_round(
     game_id: int,
-    country: str,
     db: Session = Depends(get_db)
 ):
     # 1. Check whether the game exists
@@ -135,16 +132,17 @@ def create_random_round(
             status_code=404,
             detail="Game not found"
         )
+    country = get_random_country()
 
+    print(f"Selected country: {country}")
     # 2. Get a random usable station
     try:
-        station = get_random_station(country.upper())
+        station = get_random_station(country)
     except ValueError as e:
         raise HTTPException(
             status_code=404,
             detail=str(e)
         )
-
     # 3. Create the round
     new_round = Round(
         game_id=game_id,

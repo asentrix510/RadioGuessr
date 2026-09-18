@@ -132,16 +132,22 @@ def create_random_round(
             status_code=404,
             detail="Game not found"
         )
-    country = get_random_country()
+    max_attempts = 5
+    station = None
 
-    print(f"Selected country: {country}")
-    # 2. Get a random usable station
-    try:
-        station = get_random_station(country)
-    except ValueError as e:
+    for attempt in range(max_attempts):
+        country = get_random_country()
+
+        try:
+            station = get_random_station(country)
+            break
+        except ValueError:
+            continue
+
+    if station is None:
         raise HTTPException(
-            status_code=404,
-            detail=str(e)
+            status_code=503,
+            detail="Could not find a usable radio station"
         )
     # 3. Create the round
     new_round = Round(

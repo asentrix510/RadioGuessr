@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from datetime import datetime
 from app.database.dependencies import get_db
 from app.models.round import Round
 from app.schemas.round import RoundCreate, RoundResponse
@@ -86,7 +86,11 @@ def submit_guess(
             status_code=404,
             detail="Round not found"
         )
-
+    if round.guess_latitude is not None:
+        raise HTTPException(
+         status_code=400,
+         detail="Guess already submitted for this round"
+    )
     distance = calculate_distance_km(
         round.latitude,
         round.longitude,
@@ -103,7 +107,35 @@ def submit_guess(
 
     db.commit()
     db.refresh(round)
+    round_count = (
+    db.query(Round)
+    .filter(Round.game_id == round.game_id)
+    .count()
+)
 
+    if round_count == 5:
+     game = (
+        db.query(Game)
+        .filter(Game.id == round.game_id)
+        .first()
+    )
+
+    total_score = (
+        db.query(Round)
+        .filter(Round.game_id == round.game_id)
+        .with_entities(Round.score)
+        .all()
+    )
+
+    game.score = sum(
+        score[0]
+        for score in total_score
+    )
+
+    game.completed_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(game)
     return {
         "round_id": round.id,
         "guess_latitude": round.guess_latitude,
@@ -132,6 +164,22 @@ def create_random_round(
             status_code=404,
             detail="Game not found"
         )
+    if game.completed_at is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="Game is already completed"
+    )
+    round_count = (
+    db.query(Round)
+    .filter(Round.game_id == game_id)
+    .count()
+)
+
+    if round_count >= 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Game already has 5 rounds"
+    )
     max_attempts = 5
     station = None
 

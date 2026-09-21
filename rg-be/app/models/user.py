@@ -14,6 +14,12 @@ class User(Base):
         autoincrement=True
     )
 
+    supabase_id: Mapped[str | None] = mapped_column(
+        String(255),
+        unique=True,
+        nullable=True
+    )
+
     username: Mapped[str] = mapped_column(
         String(50),
         nullable=False,

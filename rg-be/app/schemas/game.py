@@ -3,10 +3,6 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class GameCreate(BaseModel):
-    user_id: int
-
-
 class GameResponse(BaseModel):
     id: int
     user_id: int

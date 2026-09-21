@@ -16,7 +16,8 @@ from app.models.round import Round
 from app.schemas.random_round import RandomRoundResponse
 from app.services.radio_browser import get_random_station
 from app.services.country_pool import get_random_country
-
+from app.models.user import User
+from app.services.current_user import get_current_db_user
 router = APIRouter(
     prefix="/api",
     tags=["Rounds"]
@@ -31,8 +32,23 @@ router = APIRouter(
 def create_round(
     game_id: int,
     round_data: RoundCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
+    game = (
+        db.query(Game)
+        .filter(
+            Game.id == game_id,
+            Game.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if game is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Game not found"
+        )    
     new_round = Round(
         game_id=game_id,
         country=round_data.country,
@@ -53,10 +69,30 @@ def create_round(
     "/games/{game_id}/rounds",
     response_model=list[RoundResponse]
 )
+@router.get(
+    "/games/{game_id}/rounds",
+    response_model=list[RoundResponse]
+)
 def get_rounds(
     game_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
+    game = (
+        db.query(Game)
+        .filter(
+            Game.id == game_id,
+            Game.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if game is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Game not found"
+        )
+
     rounds = (
         db.query(Round)
         .filter(Round.game_id == game_id)
@@ -73,7 +109,8 @@ def get_rounds(
 def submit_guess(
     round_id: int,
     guess_data: GuessCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
     round = (
         db.query(Round)
@@ -82,6 +119,20 @@ def submit_guess(
     )
 
     if round is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Round not found"
+        )
+    game = (
+        db.query(Game)
+        .filter(
+            Game.id == round.game_id,
+            Game.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if game is None:
         raise HTTPException(
             status_code=404,
             detail="Round not found"
@@ -150,12 +201,16 @@ def submit_guess(
 )
 def create_random_round(
     game_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
     # 1. Check whether the game exists
     game = (
         db.query(Game)
-        .filter(Game.id == game_id)
+        .filter(
+            Game.id == game_id,
+            Game.user_id == current_user.id
+        )
         .first()
     )
 

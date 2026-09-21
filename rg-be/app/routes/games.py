@@ -2,10 +2,11 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, status,HTTPException
 from sqlalchemy.orm import Session
-
+from app.models.user import User
+from app.services.current_user import get_current_db_user
 from app.database.dependencies import get_db
 from app.models.game import Game
-from app.schemas.game import GameCreate, GameResponse
+from app.schemas.game import GameResponse
 from app.models.round import Round
 from app.schemas.game_progress import GameProgressResponse
 router = APIRouter(
@@ -15,8 +16,15 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[GameResponse])
-def get_games(db: Session = Depends(get_db)):
-    games = db.query(Game).all()
+def get_games(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
+):
+    games = (
+        db.query(Game)
+        .filter(Game.user_id == current_user.id)
+        .all()
+    )
 
     return games
 @router.get(
@@ -25,13 +33,17 @@ def get_games(db: Session = Depends(get_db)):
 )
 def get_game_progress(
     game_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
     game = (
-        db.query(Game)
-        .filter(Game.id == game_id)
-        .first()
+    db.query(Game)
+    .filter(
+        Game.id == game_id,
+        Game.user_id == current_user.id
     )
+    .first()
+)
 
     if game is None:
         raise HTTPException(
@@ -71,11 +83,11 @@ def get_game_progress(
     status_code=status.HTTP_201_CREATED
 )
 def create_game(
-    game_data: GameCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_db_user)
 ):
     game = Game(
-        user_id=game_data.user_id,
+        user_id=current_user.id,
         score=0,
         started_at=datetime.utcnow()
     )

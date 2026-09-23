@@ -154,39 +154,45 @@ def submit_guess(
     round.guess_longitude = guess_data.guess_longitude
     round.distance_km = distance
     round.score = score
-    
 
     db.commit()
     db.refresh(round)
-    round_count = (
-    db.query(Round)
-    .filter(Round.game_id == round.game_id)
-    .count()
-)
 
-    if round_count == 5:
-     game = (
-        db.query(Game)
-        .filter(Game.id == round.game_id)
-        .first()
-    )
-
-    total_score = (
+    completed_round_count = (
         db.query(Round)
-        .filter(Round.game_id == round.game_id)
-        .with_entities(Round.score)
-        .all()
+        .filter(
+            Round.game_id == round.game_id,
+            Round.guess_latitude.isnot(None)
+        )
+        .count()
     )
 
-    game.score = sum(
-        score[0]
-        for score in total_score
+    if completed_round_count == 5:
+        game = (
+    db.query(Game)
+    .filter(
+        Game.id == round.game_id,
+        Game.user_id == current_user.id
     )
+    .first()
+)
+        total_score = (
+            db.query(Round)
+            .filter(Round.game_id == round.game_id)
+            .with_entities(Round.score)
+            .all()
+        )
 
-    game.completed_at = datetime.utcnow()
+        game.score = sum(
+            score[0]
+            for score in total_score
+        )
 
-    db.commit()
-    db.refresh(game)
+        game.completed_at = datetime.utcnow()
+
+        db.commit()
+        db.refresh(game)
+
     return {
         "round_id": round.id,
         "guess_latitude": round.guess_latitude,
@@ -194,6 +200,8 @@ def submit_guess(
         "distance_km": round.distance_km,
         "score": round.score
     }
+
+
 @router.post(
     "/games/{game_id}/rounds/random",
     response_model=RandomRoundResponse,
@@ -219,22 +227,24 @@ def create_random_round(
             status_code=404,
             detail="Game not found"
         )
+
     if game.completed_at is not None:
         raise HTTPException(
             status_code=400,
             detail="Game is already completed"
-    )
+        )
+
     round_count = (
-    db.query(Round)
-    .filter(Round.game_id == game_id)
-    .count()
-)
+        db.query(Round)
+        .filter(Round.game_id == game_id)
+        .count()
+    )
 
     if round_count >= 5:
         raise HTTPException(
             status_code=400,
             detail="Game already has 5 rounds"
-    )
+        )
     max_attempts = 5
     station = None
 

@@ -1,20 +1,66 @@
 
 @import "tailwindcss";
 
+/* ========================================
+   RADIOGUESSR DESIGN SYSTEM
+======================================== */
+
+@theme {
+  /* Backgrounds */
+  --color-midnight: #080b12;
+  --color-surface: #101827;
+  --color-surface-elevated: #172235;
+
+  /* Brand colors */
+  --color-brand: #5ce1e6;
+  --color-brand-hover: #82edf0;
+  --color-signal: #a3e635;
+
+  /* Text */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Borders */
+  --color-border-subtle: rgb(255 255 255 / 8%);
+}
+
+/* ========================================
+   GLOBAL STYLES
+======================================== */
+
 :root {
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  color: var(--color-text-primary);
+  background: var(--color-midnight);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
 }

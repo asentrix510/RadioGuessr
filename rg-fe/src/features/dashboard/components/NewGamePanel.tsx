@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import type { GameMode, GameConfig } from '../../../types/game'
-
+import { useNavigate } from 'react-router-dom'
 function NewGamePanel() {
   const [gameMode, setGameMode] = useState<GameMode>('classic')
   const [rounds, setRounds] = useState(5)
-
+  const navigate = useNavigate()
   function handleStartGame() {
-    const config: GameConfig = {
-      mode: gameMode,
-      totalRounds: rounds,
-    }
-
-    console.log('Starting game:', config)
+  const config: GameConfig = {
+    mode: gameMode,
+    totalRounds: rounds,
   }
+
+  navigate('/game', {
+    state: config,
+  })
+}
   return (
     <section
       id="new-game"

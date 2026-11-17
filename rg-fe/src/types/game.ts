@@ -14,4 +14,5 @@ export interface GameConfig {
   mode: GameMode
   totalRounds: number
   country?: string
+  region?: string
 }

@@ -1,94 +1,104 @@
+import { Radio, CheckCircle2 } from 'lucide-react'
 
-function RecentGames() {
+export default function RecentGames() {
   const games = [
     {
       id: 1,
-      mode: 'Classic',
-      score: 4250,
+      mode: 'GLOBAL EXPEDITION',
+      score: 23450,
       rounds: 5,
-      date: '2 hours ago',
-      result: 'Completed',
+      date: '2 HOURS AGO',
+      rank: 'RANK S',
+      rankColor: 'bg-[#ffe600] text-black',
     },
     {
       id: 2,
-      mode: 'Country Challenge',
-      score: 3820,
+      mode: 'COUNTRY CHALLENGE',
+      score: 19820,
       rounds: 5,
-      date: 'Yesterday',
-      result: 'Completed',
+      date: 'YESTERDAY',
+      rank: 'RANK A',
+      rankColor: 'bg-[#00f0ff] text-black',
     },
     {
       id: 3,
-      mode: 'Classic',
-      score: 4650,
+      mode: 'GLOBAL EXPEDITION',
+      score: 21650,
       rounds: 5,
-      date: '3 days ago',
-      result: 'Completed',
+      date: '3 DAYS AGO',
+      rank: 'RANK A',
+      rankColor: 'bg-[#a3e635] text-black',
     },
   ]
 
   return (
-    <section className="mt-10">
-      {/* Section heading */}
-      <div className="flex items-center justify-between">
+    <section className="border-[3px] border-black bg-[#161a23] p-6 sm:p-8 shadow-neo-lg">
+      {/* Section Heading */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-black pb-5">
         <div>
-          <p className="text-sm font-medium text-brand">
-            YOUR ACTIVITY
-          </p>
-
-          <h2 className="mt-2 text-2xl font-bold">
-            Recent Games
+          <div className="inline-flex items-center gap-1.5 border-2 border-black bg-[#00f0ff] px-3 py-1 font-mono text-xs font-black uppercase text-black shadow-neo-sm mb-2">
+            <Radio className="w-3.5 h-3.5" />
+            <span>TRANSMISSION ARCHIVES</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black uppercase text-white tracking-tight">
+            RECENT MISSION LOGS
           </h2>
-
-          <p className="mt-2 text-sm text-text-secondary">
-            Your latest adventures around the world.
+          <p className="mt-1 text-xs text-gray-400 font-mono">
+            Historical flight telemetry and accuracy ratings from past radio intercepts.
           </p>
         </div>
 
-        <span className="text-sm text-text-muted">
-          Last 3 games
+        <span className="font-mono text-xs text-gray-400 border border-gray-700 bg-black px-3 py-1.5">
+          LOG ENTRIES: {games.length}
         </span>
       </div>
 
-      {/* Games list */}
-      <div className="mt-6 flex flex-col gap-3">
+      {/* Games List */}
+      <div className="mt-6 flex flex-col gap-4">
         {games.map((game) => (
           <div
             key={game.id}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border-subtle bg-surface p-5 transition hover:border-white/20"
+            className="border-2 border-black bg-[#10131a] p-4 sm:p-5 shadow-neo-sm hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-neo transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
-            {/* Game information */}
+            {/* Left: Info */}
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
-                🌍
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black bg-[#ffe600] text-black font-black shadow-neo-sm">
+                <Radio className="w-6 h-6" />
               </div>
 
               <div>
-                <h3 className="font-semibold">
-                  {game.mode}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-black text-base text-white tracking-tight uppercase">
+                    {game.mode}
+                  </h3>
+                  <span className={`border border-black px-2 py-0.5 font-mono text-[10px] font-black uppercase shadow-neo-sm ${game.rankColor}`}>
+                    {game.rank}
+                  </span>
+                </div>
 
-                <p className="mt-1 text-xs text-text-muted">
-                  {game.rounds} rounds · {game.date}
+                <p className="mt-1 font-mono text-xs text-gray-400 flex items-center gap-2">
+                  <span>{game.rounds} ROUNDS</span>
+                  <span>•</span>
+                  <span>{game.date}</span>
                 </p>
               </div>
             </div>
 
-            {/* Score and status */}
-            <div className="flex items-center gap-6">
-              <div className="text-right">
-                <p className="text-xs text-text-muted">
-                  FINAL SCORE
+            {/* Right: Score & Status */}
+            <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 border-gray-800 pt-3 sm:pt-0">
+              <div className="text-left sm:text-right">
+                <p className="font-mono text-[10px] text-gray-500 uppercase font-bold">
+                  TOTAL MISSION SCORE
                 </p>
-
-                <p className="mt-1 text-lg font-bold text-brand">
-                  {game.score.toLocaleString()}
+                <p className="font-mono text-xl font-black text-[#ffe600]">
+                  {game.score.toLocaleString()} PTS
                 </p>
               </div>
 
-              <span className="rounded-full bg-signal/10 px-3 py-1 text-xs font-medium text-signal">
-                {game.result}
-              </span>
+              <div className="border-2 border-black bg-[#a3e635] text-black px-3 py-1 font-mono text-xs font-black uppercase shadow-neo-sm flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>COMPLETED</span>
+              </div>
             </div>
           </div>
         ))}
@@ -96,5 +106,3 @@ function RecentGames() {
     </section>
   )
 }
-
-export default RecentGames

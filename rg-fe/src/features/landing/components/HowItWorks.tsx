@@ -1,83 +1,88 @@
+import { Headphones, Search, Globe, Trophy } from 'lucide-react'
 
 const steps = [
   {
-    number: '01',
-    title: 'Tune in',
-    description:
-      'Listen to a live radio station streaming from somewhere in the world.',
-    icon: '♫',
+    step: '01',
+    title: 'TUNE IN LIVE',
+    description: 'Listen to a real mystery radio station broadcasting live from somewhere on Earth.',
+    icon: Headphones,
+    color: 'bg-[#ffe600] text-black',
   },
   {
-    number: '02',
-    title: 'Explore the sound',
-    description:
-      'Pay attention to language, music, accents, and other clues that reveal the location.',
-    icon: '◎',
+    step: '02',
+    title: 'DECODE AUDIO',
+    description: 'Pick up on languages, music genres, dialect accents, news bulletins, and local ads.',
+    icon: Search,
+    color: 'bg-[#00f0ff] text-black',
   },
   {
-    number: '03',
-    title: 'Make your guess',
-    description:
-      'Pinpoint the station on the world map and submit your location.',
-    icon: '⌖',
+    step: '03',
+    title: '3D GLOBE PIN',
+    description: 'Rotate our 3D interactive Earth globe, zoom into regions, and drop your target pin.',
+    icon: Globe,
+    color: 'bg-[#ff3366] text-white',
   },
   {
-    number: '04',
-    title: 'Discover your score',
-    description:
-      'See how close you were, earn points, and move on to the next mystery station.',
-    icon: '✦',
+    step: '04',
+    title: 'CLAIM SCORE',
+    description: 'See the true broadcasting antenna location, calculate distance error, and climb the leaderboard.',
+    icon: Trophy,
+    color: 'bg-[#a3e635] text-black',
   },
 ]
 
-function HowItWorks() {
+export default function HowItWorks() {
   return (
-    <section id="how-it-works" className="border-t border-white/10">
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:px-10">
-        <div className="mb-14">
-          <p className="text-sm font-semibold uppercase tracking-[0.25em] text-brand">
-            The gameplay
-          </p>
-
-          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
-            Four steps. One world.
+    <section id="how-it-works" className="py-24 px-6 lg:px-10 border-b-[3px] border-black bg-[#0d1017]">
+      <div className="mx-auto max-w-7xl">
+        {/* Section Header */}
+        <div className="flex flex-col items-start mb-14">
+          <div className="border-2 border-black bg-[#00f0ff] px-3.5 py-1 font-mono text-xs font-black uppercase text-black shadow-neo-sm mb-3">
+            GAME RULES
+          </div>
+          <h2 className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-white">
+            FOUR SIMPLE STEPS. ONE PLANET.
           </h2>
-
-          <p className="mt-5 max-w-xl leading-7 text-text-secondary">
-            No complicated rules. Just listen, think, guess, and
-            discover.
+          <p className="mt-3 text-base text-gray-400 font-mono max-w-xl">
+            No convoluted mechanics. Just raw auditory observation and spatial geography instinct.
           </p>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step) => (
-            <article
-              key={step.number}
-              className="group rounded-2xl border border-white/10 bg-surface p-6 transition hover:border-brand/40"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-brand">
-                  {step.number}
-                </span>
+        {/* 4 Neo-Brutalist Step Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((item) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={item.step}
+                className="border-[3px] border-black bg-[#161a23] p-6 shadow-neo-lg hover:-translate-x-1 hover:-translate-y-1 hover:shadow-neo-xl transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-8">
+                    <span className={`inline-block border-2 border-black px-3 py-1 font-mono text-sm font-black shadow-neo-sm ${item.color}`}>
+                      STEP {item.step}
+                    </span>
+                    <div className="flex h-11 w-11 items-center justify-center border-2 border-black bg-black text-white shadow-neo-sm">
+                      <Icon className="w-5 h-5 text-[#ffe600]" />
+                    </div>
+                  </div>
 
-                <span className="text-2xl text-text-secondary transition group-hover:text-brand">
-                  {step.icon}
-                </span>
+                  <h3 className="text-xl font-black uppercase text-white tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 font-mono text-xs text-gray-400 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+
+                <div className="mt-8 pt-4 border-t border-gray-800 font-mono text-[11px] text-gray-500 uppercase">
+                  PROTOCOL #{item.step}
+                </div>
               </div>
-
-              <h3 className="mt-10 text-xl font-semibold text-white">
-                {step.title}
-              </h3>
-
-              <p className="mt-3 text-sm leading-7 text-text-secondary">
-                {step.description}
-              </p>
-            </article>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
   )
 }
-
-export default HowItWorks
